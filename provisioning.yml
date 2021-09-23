@@ -16,6 +16,7 @@
         - mysql-server-5.6
         - python-mysqldb
         - php5-mysql
+
     - name: 'Create a mysql database'
       mysql_db:
         name: wordpress_db
@@ -39,4 +40,22 @@
         src: '/tmp/wordpress.tar.gz'
         dest: '/var/www/'
         remote_src: yes
+      become: yes
+    
+    - name: 'Copy wordpress config file'
+      copy:
+        src: '/var/www/wordpress/wp-config-sample.php'
+        dest: '/var/www/wordpress/wp-config.php'
+        remote_src: yes
+      become: yes
+    
+    - name: 'Config wp-config.php file for database variables'
+      replace:
+        path: '/var/www/wordpress/wp-config.php'
+        regexp: '{{ item.regex }}'
+        replace: '{{ item.value }}'
+      with_items:
+        - { regex: 'database_name_here', value: 'wordpress_db' }
+        - { regex: 'username_here', value: 'wordpress_user' }
+        - { regex: 'password_here', value: '12345' }
       become: yes
